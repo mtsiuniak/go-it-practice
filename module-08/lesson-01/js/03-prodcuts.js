@@ -44,46 +44,59 @@ const products = [
 ];
 
 const container = document.querySelector(".products");
+container.innerHTML = createProductsMarkup(products)
+let currentModal;
 
+function createProductsMarkup(products){
+  return products.map(({id, img, name, price}) => `
+    <li data-id="${id}" class="item">
+      <img src="${img}" alt="">
+      <h2>${name}</h2>
+      <p>${price}</p>
+    </li>
+  `).join("")
+}
 
-function createCardMarkup({id, img, name, price}){
-  const markup = `<li class="item" data-id="${id}">
-                    <img src="${img}" alt="photo">
-                    <h2>${name}</h2>
-                    <p>${price}</p>
-                  </li>`
+// console.log(createProductsMarkup(products))
+
+container.addEventListener('click', (event) => {
+  if (event.target === event.currentTarget){
+    return;
+  }
+
+  const card = event.target.closest('.item');
+  const idClicked = card.dataset.id;
   
-  return markup
-}
+  const {
+    img,
+    name, price,
+    description
+  } = products.find((product) => product.id == idClicked)
+  
 
+  currentModal = basicLightbox.create(
+    `<div class="modal">
+      <img src="${img}" alt="">
+      <h2>${name}</h2>
+      <h3>${price}</h3>
+      <p>${description}</p>
+    </div>`
+  )
 
-let markup = "";
-
-for (let product of products){
-  markup += createCardMarkup(product)
-}
-
-container.innerHTML = markup;
-
-const items = container.querySelectorAll('.item');
-
-console.log(items);
-
-items.forEach((item) => {
-  item.addEventListener('click', (event) => {
-    const id = event.currentTarget.dataset.id;
-    console.log(id);
-
-    let info = products.find(item => item.id == id)
-    console.log(info)
-    basicLightbox.create(`<div class="modal">
-      <img src="${info.img}" alt="photo">
-      <h2>${info.name}</h2>
-      <h3>${info.description}</h3>
-      <p>${info.price}</p>
-    </div>`).show()
-
-  })
+  currentModal.show()
 })
+
+
+document.addEventListener('keyup', ({code}) => {
+  if (code !== 'Escape'){
+    return
+  }
+
+  currentModal.close()
+})
+
+
+
+
 
 
